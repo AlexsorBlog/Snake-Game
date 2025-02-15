@@ -2,6 +2,7 @@
 import pygame
 import time
 import random
+#111111111111111111111111
 from snake import draw_snake
 
 # def draw_snake():
