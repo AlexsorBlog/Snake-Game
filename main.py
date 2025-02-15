@@ -76,17 +76,18 @@ if __name__ == "__main__":
     }
     # snake_body = "Graphics/body_horizontal.png"
 
-    snake_position = [140, 50]
+    snake_position = [random.randrange(1, (window_x // 40)) * 40,
+                      random.randrange(1, (window_y // 40)) * 40]
 
-    snake_body = [[[140, 50], snake_heads["RIGHT"]],
-                  [[100, 50], snake_bodies["HORIZONTAL"]],
-                  [[60, 50], snake_bodies["HORIZONTAL"]],
-                  [[20, 50], snake_bodies["HORIZONTAL"]]
+    snake_body = [[snake_position, snake_heads["RIGHT"]],
+                  [[snake_position[0]-40, snake_position[1]], snake_bodies["HORIZONTAL"]],
+                  [[snake_position[0]-40, snake_position[1]], snake_bodies["HORIZONTAL"]],
+                  [[snake_position[0]-40, snake_position[1]], snake_bodies["HORIZONTAL"]]
                   ]
 
     fruit_position = [random.randrange(1, (window_x // 40)) * 40,
                       random.randrange(1, (window_y // 40)) * 40]
-
+    print(fruit_position)
     fruit_spawn = True
 
     direction = 'RIGHT'
@@ -128,8 +129,6 @@ if __name__ == "__main__":
         if direction == 'RIGHT':
             snake_position[0] += 40
         for i in range(len(snake_body) - 1, 0, -1):
-            print(i)
-            print(snake_body[i][0])
             if i == 1:
                 new_coordinates = snake_position
                 if (snake_body[i][0][0] > new_coordinates[0] or snake_body[i][0][0] < new_coordinates[0]) and \
@@ -146,8 +145,6 @@ if __name__ == "__main__":
                     body_direction = "TOP_RIGHT"
                 elif (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1]) or (snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1]):
                     body_direction = "BOTTOM_RIGHT"
-                print(body_direction)
-                print(new_coordinates)
                 snake_body[i][0] = snake_body[0][0]
                 snake_body[i][1] = snake_bodies[body_direction]
             else:
@@ -155,6 +152,7 @@ if __name__ == "__main__":
 
         snake_body[0] = [list(snake_position), snake_heads[direction]]
         # snake_body.insert(0, [list(snake_position), snake_body[0][-1]])
+
         if snake_position[0] == fruit_position[0] and snake_position[1] == fruit_position[1]:
             score += 1
             fruit_spawn = False
