@@ -151,19 +151,13 @@ if __name__ == "__main__":
                 snake_body[i] = list(snake_body[i - 1])
 
         snake_body[0] = [list(snake_position), snake_heads[direction]]
-        # snake_body.insert(0, [list(snake_position), snake_body[0][-1]])
 
         if snake_position[0] == fruit_position[0] and snake_position[1] == fruit_position[1]:
             score += 1
-            fruit_spawn = False
-        # else:
-        #     snake_body.pop()
-
-        if not fruit_spawn:
             fruit_position = [random.randrange(1, (window_x // 40)) * 40,
                               random.randrange(1, (window_y // 40)) * 40]
+            snake_body.append(snake_body[-1])
 
-        fruit_spawn = True
         game_window.fill(black)
 
         pygame.draw.rect(game_window, red, pygame.Rect(
