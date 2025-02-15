@@ -39,7 +39,7 @@ def game_over():
     quit()
 
 if __name__ == "__main__":
-    snake_speed = 5
+    snake_speed = 10
 
     # Window size
     window_x = 720
@@ -58,6 +58,8 @@ if __name__ == "__main__":
     game_window = pygame.display.set_mode((window_x, window_y))
 
     fps = pygame.time.Clock()
+
+    fruit = pygame.image.load("Graphics/apple.png").convert()
 
     snake_heads = {
         "UP": "Graphics/head_up.png",
@@ -81,23 +83,22 @@ if __name__ == "__main__":
 
     snake_body = [[snake_position, snake_heads["RIGHT"]],
                   [[snake_position[0]-40, snake_position[1]], snake_bodies["HORIZONTAL"]],
-                  [[snake_position[0]-40, snake_position[1]], snake_bodies["HORIZONTAL"]],
-                  [[snake_position[0]-40, snake_position[1]], snake_bodies["HORIZONTAL"]]
+                  [[snake_position[0]-80, snake_position[1]], snake_bodies["HORIZONTAL"]],
+                  [[snake_position[0]-120, snake_position[1]], snake_bodies["HORIZONTAL"]]
                   ]
 
     fruit_position = [random.randrange(1, (window_x // 40)) * 40,
                       random.randrange(1, (window_y // 40)) * 40]
-    print(fruit_position)
     fruit_spawn = True
-
+    started = False
     direction = 'RIGHT'
     change_to = "RIGHT"
 
     score = 0
-
     while True:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
+                started = True
                 if event.key == pygame.K_UP:
                     change_to = 'UP'
                     snake_body[0][-1] = snake_heads[change_to]
@@ -137,9 +138,9 @@ if __name__ == "__main__":
                 elif (snake_body[i][0][1] > new_coordinates[1] or snake_body[i][0][1] < new_coordinates[1]) and \
                         snake_body[i][0][0] == new_coordinates[0]:
                     body_direction = "VERTICAL"
-                elif (snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1]) or (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1]):
+                elif ((snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1]) or (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1])) and (direction == "UP" or direction=="LEFT"):
                     body_direction = "TOP_LEFT"
-                elif (snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1]) or (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1]):
+                elif ((snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1]) or (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1])) and (direction == "DOWN" or direction=="LEFT"):
                     body_direction = "BOTTOM_LEFT"
                 elif (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1]) or (snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1]):
                     body_direction = "TOP_RIGHT"
@@ -158,23 +159,26 @@ if __name__ == "__main__":
                               random.randrange(1, (window_y // 40)) * 40]
             snake_body.append(snake_body[-1])
 
-        game_window.fill(black)
+        game_window.fill(white)
 
-        pygame.draw.rect(game_window, red, pygame.Rect(
-            fruit_position[0], fruit_position[1], 40, 40))
+        game_window.blit(fruit,
+            [fruit_position[0], fruit_position[1]])
 
         draw_snake(game_window, snake_body)
-
-        if snake_position[0] < 0 or snake_position[0] > window_x - 40:
-            game_over()
-        if snake_position[1] < 0 or snake_position[1] > window_y - 40:
-            game_over()
-
-        for block in snake_body[1:]:
-            if snake_position[0] == block[0] and snake_position[1] == block[1]:
+        if started==False:
+            pass
+        else:
+            if snake_position[0] < 0 or snake_position[0] > window_x - 40:
                 game_over()
-
-        show_score(1, white, 'times new roman', 20)
+            if snake_position[1] < 0 or snake_position[1] > window_y - 40:
+                game_over()
+            for block in snake_body:
+                if snake_body[0] == block:
+                    pass
+                elif snake_position[0] == block[0][0] and snake_position[1] == block[0][1]:
+                    print(block)
+                    game_over()
+        show_score(1, black, 'times new roman', 20)
 
         pygame.display.update()
 
