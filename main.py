@@ -96,6 +96,9 @@ if __name__ == "__main__":
     change_to = "RIGHT"
     score = 0
 
+
+
+
     wait_for_start()  # Очікування натискання ПРОБІЛА перед стартом
 
     while True:
@@ -118,15 +121,36 @@ if __name__ == "__main__":
                  if snake_position == block[0]:  # Якщо координати голови збігаються з будь-яким сегментом тіла
                     game_over()
 
+
+
         direction = change_to
+        cell_size = 40
+
+
         if direction == 'UP':
-            snake_position[1] -= 40
-        if direction == 'DOWN':
-            snake_position[1] += 40
-        if direction == 'LEFT':
-            snake_position[0] -= 40
-        if direction == 'RIGHT':
-            snake_position[0] += 40
+            snake_position[1] -= cell_size
+        elif direction == 'DOWN':
+            snake_position[1] += cell_size
+        elif direction == 'LEFT':
+            snake_position[0] -= cell_size
+        elif direction == 'RIGHT':
+            snake_position[0] += cell_size
+
+        # Телепортація
+        if snake_position[0] < 0:
+            snake_position[0] = window_x - cell_size
+        elif snake_position[0] > window_x - cell_size:
+            snake_position[0] = 0
+
+        if snake_position[1] < 0:
+            snake_position[1] = window_y - cell_size
+        elif snake_position[1] > window_y - cell_size:
+            snake_position[1] = 0
+
+            # Перевірка на зіткнення з тілом
+            for block in snake_body[1:]:
+                if snake_position == block[0]:
+                    game_over()
 
         new_head = [list(snake_position), snake_heads[direction]]
         snake_body.insert(0, new_head)
