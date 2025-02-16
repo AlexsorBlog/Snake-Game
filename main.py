@@ -114,6 +114,9 @@ if __name__ == "__main__":
                     change_to = 'LEFT'
                 if event.key == pygame.K_RIGHT and direction != 'LEFT':
                     change_to = 'RIGHT'
+            for block in snake_body[1:]:  # Перевіряємо всі частини тіла, крім голови
+                 if snake_position == block[0]:  # Якщо координати голови збігаються з будь-яким сегментом тіла
+                    game_over()
 
         direction = change_to
         if direction == 'UP':
@@ -124,10 +127,6 @@ if __name__ == "__main__":
             snake_position[0] -= 40
         if direction == 'RIGHT':
             snake_position[0] += 40
-
-        for block in snake_body[1:]:  # Перевіряємо всі частини тіла, крім голови
-            if snake_position == block[0]:  # Якщо координати голови збігаються з будь-яким сегментом тіла
-                game_over()
 
         new_head = [list(snake_position), snake_heads[direction]]
         snake_body.insert(0, new_head)
