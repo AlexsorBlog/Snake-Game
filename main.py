@@ -2,7 +2,7 @@ import pygame
 import time
 import random
 from snake import draw_snake
-
+#w
 
 def show_score(color, font, size):
     score_font = pygame.font.SysFont(font, size)
