@@ -1,63 +1,57 @@
-# importing libraries
 import pygame
 import time
 import random
-#111111111111111111111111
 from snake import draw_snake
+#w
 
-# def draw_snake():
-#     for pos in snake_body:
-#         pygame.draw.rect(game_window, green,
-#                          pygame.Rect(pos[0], pos[1], 10, 10))
-
-def show_score(choice, color, font, size):
+def show_score(color, font, size):
     score_font = pygame.font.SysFont(font, size)
-
     score_surface = score_font.render('Score : ' + str(score), True, color)
-
     score_rect = score_surface.get_rect()
-
     game_window.blit(score_surface, score_rect)
 
 
 def game_over():
     my_font = pygame.font.SysFont('times new roman', 50)
-
-    game_over_surface = my_font.render(
-        'Your Score is : ' + str(score), True, red)
-
+    game_over_surface = my_font.render(f'Your Score is : {score}', True, red)
     game_over_rect = game_over_surface.get_rect()
-
     game_over_rect.midtop = (window_x / 2, window_y / 4)
-
     game_window.blit(game_over_surface, game_over_rect)
     pygame.display.flip()
-
     time.sleep(2)
-
     pygame.quit()
-
     quit()
+
+
+def wait_for_start():
+    """Очікування натискання пробілу перед початком гри."""
+    game_window.fill(white)
+    message_font = pygame.font.SysFont('times new roman', 30)
+    message_surface = message_font.render("Натисніть ПРОБІЛ для початку гри", True, black)
+    message_rect = message_surface.get_rect(center=(window_x / 2, window_y / 2))
+    game_window.blit(message_surface, message_rect)
+    pygame.display.flip()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    waiting = False  # Вихід із циклу після натискання ПРОБІЛА
+
 
 if __name__ == "__main__":
     snake_speed = 10
+    window_x, window_y = 720, 480
 
-    # Window size
-    window_x = 720
-    window_y = 480
-
-    # defining colors
-    black = pygame.Color(0, 0, 0)
-    white = pygame.Color(255, 255, 255)
-    red = pygame.Color(255, 0, 0)
-    green = pygame.Color(0, 255, 0)
-    blue = pygame.Color(0, 0, 255)
+    black, white, red, green, blue = (0, 0, 0), (255, 255, 255), (255, 0, 0), (0, 255, 0), (0, 0, 255)
 
     pygame.init()
-
     pygame.display.set_caption('Snake Game')
     game_window = pygame.display.set_mode((window_x, window_y))
-
     fps = pygame.time.Clock()
 
     fruit = pygame.image.load("Graphics/apple.png").convert()
@@ -77,110 +71,137 @@ if __name__ == "__main__":
         "TOP_RIGHT": "Graphics/body_topright.png",
         "VERTICAL": "Graphics/body_vertical.png"
     }
-    # snake_body = "Graphics/body_horizontal.png"
+
+    snake_tails = {
+        "UP": "Graphics/tail_down.png",
+        "DOWN": "Graphics/tail_up.png",
+        "LEFT": "Graphics/tail_right.png",
+        "RIGHT": "Graphics/tail_left.png"
+    }
 
     snake_position = [random.randrange(1, (window_x // 40)) * 40,
                       random.randrange(1, (window_y // 40)) * 40]
 
-    snake_body = [[snake_position, snake_heads["RIGHT"]],
-                  [[snake_position[0]-40, snake_position[1]], snake_bodies["HORIZONTAL"]],
-                  [[snake_position[0]-80, snake_position[1]], snake_bodies["HORIZONTAL"]],
-                  [[snake_position[0]-120, snake_position[1]], snake_bodies["HORIZONTAL"]]
-                  ]
+    snake_body = [
+        [list(snake_position), snake_heads["RIGHT"]],
+        [[snake_position[0] - 40, snake_position[1]], snake_bodies["HORIZONTAL"]],
+        [[snake_position[0] - 80, snake_position[1]], snake_bodies["HORIZONTAL"]],
+        [[snake_position[0] - 120, snake_position[1]], snake_tails["RIGHT"]]
+    ]
 
     fruit_position = [random.randrange(1, (window_x // 40)) * 40,
                       random.randrange(1, (window_y // 40)) * 40]
-    fruit_spawn = True
     started = False
     direction = 'RIGHT'
     change_to = "RIGHT"
-
     score = 0
+
+
+
+
+    wait_for_start()  # Очікування натискання ПРОБІЛА перед стартом
+
     while True:
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
             if event.type == pygame.KEYDOWN:
                 started = True
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_UP and direction != 'DOWN':
                     change_to = 'UP'
-                    snake_body[0][-1] = snake_heads[change_to]
-                if event.key == pygame.K_DOWN:
+                if event.key == pygame.K_DOWN and direction != 'UP':
                     change_to = 'DOWN'
-                    snake_body[0][-1] = snake_heads[change_to]
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT and direction != 'RIGHT':
                     change_to = 'LEFT'
-                    snake_body[0][-1] = snake_heads[change_to]
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_RIGHT and direction != 'LEFT':
                     change_to = 'RIGHT'
-                    snake_body[0][-1] = snake_heads[change_to]
+            for block in snake_body[1:]:  # Перевіряємо всі частини тіла, крім голови
+                 if snake_position == block[0]:  # Якщо координати голови збігаються з будь-яким сегментом тіла
+                    game_over()
 
-        if change_to == 'UP' and direction != 'DOWN':
-            direction = 'UP'
-        if change_to == 'DOWN' and direction != 'UP':
-            direction = 'DOWN'
-        if change_to == 'LEFT' and direction != 'RIGHT':
-            direction = 'LEFT'
-        if change_to == 'RIGHT' and direction != 'LEFT':
-            direction = 'RIGHT'
+
+
+        direction = change_to
+        cell_size = 40
+
 
         if direction == 'UP':
-            snake_position[1] -= 40
-        if direction == 'DOWN':
-            snake_position[1] += 40
-        if direction == 'LEFT':
-            snake_position[0] -= 40
-        if direction == 'RIGHT':
-            snake_position[0] += 40
-        for i in range(len(snake_body) - 1, 0, -1):
-            if i == 1:
-                new_coordinates = snake_position
-                if (snake_body[i][0][0] > new_coordinates[0] or snake_body[i][0][0] < new_coordinates[0]) and \
-                        snake_body[i][0][1] == new_coordinates[1]:
-                    body_direction = "HORIZONTAL"
-                elif (snake_body[i][0][1] > new_coordinates[1] or snake_body[i][0][1] < new_coordinates[1]) and \
-                        snake_body[i][0][0] == new_coordinates[0]:
-                    body_direction = "VERTICAL"
-                elif ((snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1]) or (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1])) and (direction == "UP" or direction=="LEFT"):
-                    body_direction = "TOP_LEFT"
-                elif ((snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1]) or (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1])) and (direction == "DOWN" or direction=="LEFT"):
-                    body_direction = "BOTTOM_LEFT"
-                elif (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1]) or (snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1]):
-                    body_direction = "TOP_RIGHT"
-                elif (snake_body[i][0][0] > new_coordinates[0] and snake_body[i][0][1] < new_coordinates[1]) or (snake_body[i][0][0] < new_coordinates[0] and snake_body[i][0][1] > new_coordinates[1]):
-                    body_direction = "BOTTOM_RIGHT"
-                snake_body[i][0] = snake_body[0][0]
-                snake_body[i][1] = snake_bodies[body_direction]
-            else:
-                snake_body[i] = list(snake_body[i - 1])
+            snake_position[1] -= cell_size
+        elif direction == 'DOWN':
+            snake_position[1] += cell_size
+        elif direction == 'LEFT':
+            snake_position[0] -= cell_size
+        elif direction == 'RIGHT':
+            snake_position[0] += cell_size
 
-        snake_body[0] = [list(snake_position), snake_heads[direction]]
+        # Телепортація
+        if snake_position[0] < 0:
+            snake_position[0] = window_x - cell_size
+        elif snake_position[0] > window_x - cell_size:
+            snake_position[0] = 0
+
+        if snake_position[1] < 0:
+            snake_position[1] = window_y - cell_size
+        elif snake_position[1] > window_y - cell_size:
+            snake_position[1] = 0
+
+            # Перевірка на зіткнення з тілом
+            for block in snake_body[1:]:
+                if snake_position == block[0]:
+                    game_over()
+
+        new_head = [list(snake_position), snake_heads[direction]]
+        snake_body.insert(0, new_head)
 
         if snake_position[0] == fruit_position[0] and snake_position[1] == fruit_position[1]:
             score += 1
             fruit_position = [random.randrange(1, (window_x // 40)) * 40,
                               random.randrange(1, (window_y // 40)) * 40]
-            snake_body.append(snake_body[-1])
+        else:
+            snake_body.pop()
+
+        # Оновлення тіла
+        for i in range(1, len(snake_body) - 1):
+            prev_segment = snake_body[i - 1][0]
+            current_segment = snake_body[i][0]
+            next_segment = snake_body[i + 1][0]
+
+            if prev_segment[0] == next_segment[0]:
+                snake_body[i][1] = snake_bodies["VERTICAL"]
+            elif prev_segment[1] == next_segment[1]:
+                snake_body[i][1] = snake_bodies["HORIZONTAL"]
+            elif (prev_segment[0] < current_segment[0] and next_segment[1] < current_segment[1]) or \
+                    (prev_segment[1] < current_segment[1] and next_segment[0] < current_segment[0]):
+                snake_body[i][1] = snake_bodies["TOP_LEFT"]
+            elif (prev_segment[0] > current_segment[0] and next_segment[1] < current_segment[1]) or \
+                    (prev_segment[1] < current_segment[1] and next_segment[0] > current_segment[0]):
+                snake_body[i][1] = snake_bodies["TOP_RIGHT"]
+            elif (prev_segment[0] < current_segment[0] and next_segment[1] > current_segment[1]) or \
+                    (prev_segment[1] > current_segment[1] and next_segment[0] < current_segment[0]):
+                snake_body[i][1] = snake_bodies["BOTTOM_LEFT"]
+            elif (prev_segment[0] > current_segment[0] and next_segment[1] > current_segment[1]) or \
+                    (prev_segment[1] > current_segment[1] and next_segment[0] > current_segment[0]):
+                snake_body[i][1] = snake_bodies["BOTTOM_RIGHT"]
+
+        # Оновлення хвоста
+        last_segment = snake_body[-1][0]
+        second_last_segment = snake_body[-2][0]
+
+        if last_segment[0] < second_last_segment[0]:
+            snake_body[-1][1] = snake_tails["RIGHT"]
+        elif last_segment[0] > second_last_segment[0]:
+            snake_body[-1][1] = snake_tails["LEFT"]
+        elif last_segment[1] < second_last_segment[1]:
+            snake_body[-1][1] = snake_tails["DOWN"]
+        elif last_segment[1] > second_last_segment[1]:
+            snake_body[-1][1] = snake_tails["UP"]
 
         game_window.fill(white)
-
-        game_window.blit(fruit,
-            [fruit_position[0], fruit_position[1]])
-
+        game_window.blit(fruit, fruit_position)
         draw_snake(game_window, snake_body)
-        if started==False:
-            pass
-        else:
-            if snake_position[0] < 0 or snake_position[0] > window_x - 40:
-                game_over()
-            if snake_position[1] < 0 or snake_position[1] > window_y - 40:
-                game_over()
-            for block in snake_body:
-                if snake_body[0] == block:
-                    pass
-                elif snake_position[0] == block[0][0] and snake_position[1] == block[0][1]:
-                    print(block)
-                    game_over()
-        show_score(1, black, 'times new roman', 20)
 
+        show_score(black, 'times new roman', 20)
         pygame.display.update()
-
-        fps.tick(snake_speed)
+        fps.tick(10 + score // 5)
